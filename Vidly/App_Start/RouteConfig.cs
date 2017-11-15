@@ -12,6 +12,8 @@ namespace Vidly
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            //Tutaj definiujemy nasze "sciezki" jak maja wygladac jest to jedna z opcji.
+            routes.MapMvcAttributeRoutes();
 
             routes.MapRoute(
                 name: "Default",
