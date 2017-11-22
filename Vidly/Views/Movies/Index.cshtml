@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Vidly.Models.Movie>
+﻿@model IEnumerable<Vidly.Models.Movies>
 
 @{
     ViewBag.Title = "Movies";
@@ -6,17 +6,21 @@
 }
 
 <h2>Movies</h2>
+<a class="btn btn-primary" href="@Url.Action("MovieForm","Movies")">New Movie</a>
+<br/><br />
 <table class="table table-bordered table-hover">
     <thead class="card-header">
         <tr>
             <th>Movie</th>
+            <th>Genre</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var movie in Model)
         {
             <tr>
-                <td>@movie.Name</td>
+                <td>@Html.ActionLink(movie.Name, "Edit", "Movies", new { id = movie.Id }, null)</td>
+                <td>@movie.Genre.Name</td>
             </tr>
         }
     </tbody>

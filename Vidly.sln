@@ -5,6 +5,12 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vidly", "Vidly\Vidly.csproj", "{EF3340EB-0550-4C8B-B96E-8B8A7F9884B0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{64FE4161-BC1D-47EC-A84C-CB81EDAF8B47}"
+	ProjectSection(SolutionItems) = preProject
+		WE-Palette.css = WE-Palette.css
+		WebEssentials2015-Settings.json = WebEssentials2015-Settings.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
