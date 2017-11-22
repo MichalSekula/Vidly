@@ -12,5 +12,9 @@ namespace Vidly.Models
         public short SignUpFee { get; set; }
         public byte DurationInMonths { get; set; }
         public byte DiscountRate { get; set; }
+
+        //Reprezentacja pierwszych dwoch pol tabeli, 
+        public static readonly byte Unknow = 0;
+        public static readonly byte PayAsYouGo = 1;
     }
 }
