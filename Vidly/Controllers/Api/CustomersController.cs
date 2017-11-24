@@ -5,6 +5,8 @@ using System.Net;
 using System.Web.Http;
 using System.Web.Mvc;
 using Vidly.Models;
+using AutoMapper;
+using Vidly.Dtos;
 
 namespace Vidly.Controllers.Api
 {
@@ -14,6 +16,8 @@ namespace Vidly.Controllers.Api
     //GET, POST, PUT, DELETE 
     //Dane z tabeli mozemy zobaczyc za pomoca kodu XML, po uruchomieniu aplikacji i w linku dopisac api/customers
     //Polecane jest zainstalowac rozszerzenie do google chrome - POSTMAN, ktory bardziej zrozumiale pokazuje dane oraz latwiej mozna zarzadzac danymi
+    // w RESTfull web Api, nie wolno poslugiwac sie parametrami bezposrednio z naszego modelu, dlatego poslugujemy sie klasa pomocna CustomerDto
+    // ktora reprezentuje nasz model
 
     public class CustomersController : ApiController
     {
@@ -23,33 +27,38 @@ namespace Vidly.Controllers.Api
             _context = new ApplicationDbContext();
         }
         //GET api/customers/
-        public IEnumerable<Customer> GetCustomer()
+        //Tak sie uzywa automappera do inicjalizowania zmiennych z Dtos bez wypisywania wszystkich pol inicjalizujacych
+        public IEnumerable<CustomerDto> GetCustomer()
         {
-            return _context.Customers.ToList();
+            return _context.Customers.ToList().Select(Mapper.Map<Customer, CustomerDto>);
         }
         //GET api/customers/1
-        public Customer customer(int id)
+        //A tak sie uzywa gdy chcemy zwrocic jednego customer'a 
+        public CustomerDto customer(int id)
         {
             var customer = _context.Customers.SingleOrDefault(c => c.Id == id);
             if (customer == null)
                 throw new HttpResponseException(HttpStatusCode.NotFound);
-            return customer;
+            return Mapper.Map<Customer, CustomerDto>(customer);
         }
         //POST api/customers
         [System.Web.Http.HttpPost]
-        public Customer CreateCustomer(Customer customer)
+        public CustomerDto CreateCustomer(CustomerDto customerDto)
         {
             if (!ModelState.IsValid)
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
 
+            var customer = Mapper.Map<CustomerDto, Customer>(customerDto);
             _context.Customers.Add(customer);
             _context.SaveChanges();
 
-            return customer;
+            customerDto.Id = customer.Id;
+
+            return customerDto;
         }
         //PUT api/customer/1
         [System.Web.Http.HttpPut]
-        public void UpdateCustomer(int id, Customer customer)
+        public void UpdateCustomer(int id, CustomerDto customerDto)
         {
             if (!ModelState.IsValid)
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
@@ -57,11 +66,19 @@ namespace Vidly.Controllers.Api
             var customerInDb = _context.Customers.SingleOrDefault(c => c.Id == id);
             if (customerInDb == null)
                 throw new HttpResponseException(HttpStatusCode.NotFound);
+            // Z racji tego iz w mapperze poslugujemy sie zmiennymi reprezentujacymi mapowane klasy,
+            // czyli reprezentant modelu customerInDb oraz reprezentant klasy Dto customerDto
+            // nie musimy podwojnie mapowac nasze klasy i wystarczy uproszczony zapis,
+            // zamiast -- Mapper.Map<CustomerDto, Customer>(customerDto, customerInDb); -- 
+            // uzyjemy...
 
-            customerInDb.Name = customer.Name;
-            customerInDb.Birthdate = customer.Birthdate;
-            customerInDb.IsSubscribedToCustomer = customer.IsSubscribedToCustomer;
-            customerInDb.MembershipTypeId = customer.MembershipTypeId;
+            Mapper.Map(customerDto, customerInDb);
+
+            //automapper sluzy do tego aby pozbyc sie takiej inicjalizacji jaka jest ponizej i zastapic ja jedna linia 
+            //customerInDb.Name = customer.Name;
+            //customerInDb.Birthdate = customer.Birthdate;
+            //customerInDb.IsSubscribedToCustomer = customer.IsSubscribedToCustomer;
+            //customerInDb.MembershipTypeId = customer.MembershipTypeId;
 
             _context.SaveChanges();
         }
