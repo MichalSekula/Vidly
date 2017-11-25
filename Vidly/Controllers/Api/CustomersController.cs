@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System;
+using System.Data.Entity;
 using System.Net;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -28,25 +29,30 @@ namespace Vidly.Controllers.Api
         }
         //GET api/customers/
         //Tak sie uzywa automappera do inicjalizowania zmiennych z Dtos bez wypisywania wszystkich pol inicjalizujacych
-        public IEnumerable<CustomerDto> GetCustomer()
+        public IHttpActionResult GetCustomer()
         {
-            return _context.Customers.ToList().Select(Mapper.Map<Customer, CustomerDto>);
+            var customerDtos = _context.Customers.Include(c=>c.MembershipType).ToList().Select(Mapper.Map<Customer, CustomerDto>);
+            return Ok(customerDtos);
         }
         //GET api/customers/1
         //A tak sie uzywa gdy chcemy zwrocic jednego customer'a 
-        public CustomerDto customer(int id)
+        public IHttpActionResult customer(int id)
         {
             var customer = _context.Customers.SingleOrDefault(c => c.Id == id);
             if (customer == null)
-                throw new HttpResponseException(HttpStatusCode.NotFound);
-            return Mapper.Map<Customer, CustomerDto>(customer);
+                return NotFound();
+            return Ok(Mapper.Map<Customer, CustomerDto>(customer));
         }
         //POST api/customers
+        //W web api poslugujemy sie bardzo podobnym interfejsem jak w standardowym kodzie mvc
+        // czyli zamiast ActionResult dajemy IHttpActionResult ktory zwraca nam zmieniona forme return a zwraca nam dokaldnie cos takiego
+        // api/customers/10 - w zaleznosci jakie mamy id,
+        // w prawidlowej konwencji RESTfull heders powinno byc 201 Created w dodawaniu customer'a
         [System.Web.Http.HttpPost]
-        public CustomerDto CreateCustomer(CustomerDto customerDto)
+        public IHttpActionResult CreateCustomer(CustomerDto customerDto)
         {
             if (!ModelState.IsValid)
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
+                return BadRequest();
 
             var customer = Mapper.Map<CustomerDto, Customer>(customerDto);
             _context.Customers.Add(customer);
@@ -54,18 +60,18 @@ namespace Vidly.Controllers.Api
 
             customerDto.Id = customer.Id;
 
-            return customerDto;
+            return Created(new Uri(Request.RequestUri + "/" + customer.Id),customerDto.Id);
         }
         //PUT api/customer/1
         [System.Web.Http.HttpPut]
-        public void UpdateCustomer(int id, CustomerDto customerDto)
+        public IHttpActionResult UpdateCustomer(int id, CustomerDto customerDto)
         {
             if (!ModelState.IsValid)
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
+                return BadRequest();
 
             var customerInDb = _context.Customers.SingleOrDefault(c => c.Id == id);
             if (customerInDb == null)
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                return NotFound();
             // Z racji tego iz w mapperze poslugujemy sie zmiennymi reprezentujacymi mapowane klasy,
             // czyli reprezentant modelu customerInDb oraz reprezentant klasy Dto customerDto
             // nie musimy podwojnie mapowac nasze klasy i wystarczy uproszczony zapis,
@@ -81,17 +87,21 @@ namespace Vidly.Controllers.Api
             //customerInDb.MembershipTypeId = customer.MembershipTypeId;
 
             _context.SaveChanges();
+
+            return Ok();
         }
         //DELETE api/customer/1
         [System.Web.Http.HttpDelete]
-        public void DeleteCustomer(int id)
+        public IHttpActionResult DeleteCustomer(int id)
         {
             var customerInDb = _context.Customers.SingleOrDefault(c => c.Id == id);
             if (customerInDb == null)
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                return NotFound();
 
             _context.Customers.Remove(customerInDb);
             _context.SaveChanges();
+
+            return Ok();
         }
     }
 }

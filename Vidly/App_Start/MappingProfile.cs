@@ -16,7 +16,14 @@ namespace Vidly.App_Start
         public MappingProfile()
         {
             Mapper.CreateMap<Customer, CustomerDto>();
-            Mapper.CreateMap<CustomerDto, Customer>();
+            //podczas mapowanaia automapper przy edycji danej tabeli np. customers, movies nie moze zmieniac Id
+            //dlatego informuje sie go aby pominal klucz id
+            Mapper.CreateMap<CustomerDto, Customer>().ForMember(c => c.Id, opt => opt.Ignore());
+
+            Mapper.CreateMap<Movies, MovieDto>();
+            Mapper.CreateMap<MovieDto, Movies>().ForMember(c => c.Id, opt => opt.Ignore());
+
+            Mapper.CreateMap<MembershipTypes, MembershipTypeDto>();
         }
     }
 }

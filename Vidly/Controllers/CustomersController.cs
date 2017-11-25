@@ -22,9 +22,9 @@ namespace Vidly.Controllers
         {
             //jak sama nazwa wskazuje, pozwala nam przekazac do widoku dwa modele
             // dolaczony model musi rowniez wystepowac jako zmienna w modelu Customer
-            var customers = _context.Customers.Include(c => c.MembershipType).ToList();
+            //--------- Teraz korzystamy z API wiec nie potrzebujemy przesylac modelu
 
-            return View(customers);
+            return View();
         }
 
         public ActionResult Details(int id)

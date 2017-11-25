@@ -21,11 +21,15 @@ namespace Vidly.Dtos
         [StringLength(100)]
         public string Name { get; set; }
         
-        [Min18YearsIsAMember]
+        //[Min18YearsIsAMember] jesli korzystamy z IhttpActionResult musimy wykomentowac te walidacje poniewaz ona w swoie zawiera customer co program nam nie rozpozna
+        // i przedstawi to jako blad
         public DateTime? Birthdate { get; set; }
+
+        public byte MembershipTypeId { get; set; }
+        public MembershipTypeDto MembershipType { get; set; }
 
         public bool IsSubscribedToCustomer { get; set; }
 
-        public byte MembershipTypeId { get; set; }
+        
     }
 }
